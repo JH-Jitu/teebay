@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "teebay",
+    "name": "TeeBay",
     "slug": "teebay",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +9,15 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.teebay.appname",
+      "googleServicesFile": "./googleConfig/GoogleService-Info.plist",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to authenticate and access your TeeBay account securely.",
+        "NSCameraUsageDescription": "Take photos of products you want to sell or rent.",
+        "NSPhotoLibraryUsageDescription": "Select photos from your library to add to your product listings.",
+        "NSMicrophoneUsageDescription": "Record audio for product videos."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +27,20 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.teebay.appname",
+      "googleServicesFile": "./googleConfig/google-services.json",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.WAKE_LOCK",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
@@ -38,11 +59,49 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#E6F4FE",
+          "defaultChannel": "default",
+          "sounds": []
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Use Face ID to authenticate and access your TeeBay account securely."
+        }
+      ],
+      ["expo-secure-store"],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "TeeBay needs access to your photos to let you select images for your product listings.",
+          "cameraPermission": "TeeBay needs access to your camera to let you take photos of your products."
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0fb0ba5d-f0ba-44ea-b3d7-2209ed8c9e67"
+      }
+    },
+    "owner": "jh-jitu"
   }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1004067434105",
+    "project_id": "teebay-mobile-assesment",
+    "storage_bucket": "teebay-mobile-assesment.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1004067434105:android:6e1d9af93cb46d62ac2ea8",
+        "android_client_info": {
+          "package_name": "com.teebay.appname"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTH8TBBxtPINvyyewXEobkWpUw5uWOJZs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
