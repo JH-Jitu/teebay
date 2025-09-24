@@ -1,322 +1,234 @@
-
-
-import { authService } from "@/src/services/auth";
-import type { AuthState, LoginCredentials, RegisterData } from "@/src/types";
+import type { RegisterData, User } from "@/src/types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
-import { subscribeWithSelector } from "zustand/middleware";
 
-interface AuthStore {
+interface SimpleAuthStore {
   
-  user: AuthState["user"];
-  token: AuthState["token"];
-  refreshToken: AuthState["refreshToken"];
-  isAuthenticated: AuthState["isAuthenticated"];
-  isLoading: AuthState["isLoading"];
-  biometricEnabled: AuthState["biometricEnabled"];
-  lastLoginDate: AuthState["lastLoginDate"];
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  biometricEnabled: boolean;
   error: string | null;
 
   
-  login: (credentials: LoginCredentials) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
   initializeAuth: () => Promise<void>;
   enableBiometric: () => Promise<void>;
-  disableBiometric: () => Promise<void>;
-  autoLoginWithBiometric: () => Promise<boolean>;
   setLoading: (loading: boolean) => void;
   clearError: () => void;
 }
 
-export const useAuthStore = create<AuthStore>()(
-  subscribeWithSelector((set, get) => ({
-    
-    user: null,
-    token: null,
-    refreshToken: null,
-    isAuthenticated: false,
-    isLoading: false,
-    biometricEnabled: false,
-    lastLoginDate: undefined,
-    error: null,
 
-    
-    login: async (credentials: LoginCredentials) => {
-      try {
-        set({ isLoading: true, error: null });
+const apiCall = async (endpoint: string, method: string, data?: any) => {
+  const baseUrl =
+    process.env.EXPO_PUBLIC_API_BASE_URL || "http://192.168.0.113:8000/api";
 
-        const { user, token, refreshToken } = await authService.login(
-          credentials
-        );
+  console.log(`API Call: ${method} ${baseUrl}${endpoint}`, data);
 
-        set({
-          user,
-          token,
-          refreshToken,
-          isAuthenticated: true,
-          isLoading: false,
-          lastLoginDate: new Date().toISOString(),
-          error: null,
-        });
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Login failed";
-        set({
-          isLoading: false,
-          error: errorMessage,
-          isAuthenticated: false,
-          user: null,
-          token: null,
-          refreshToken: null,
-        });
-        throw error;
-      }
-    },
+  try {
+    const response = await fetch(`${baseUrl}${endpoint}`, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    });
 
-    register: async (data: RegisterData) => {
-      try {
-        set({ isLoading: true, error: null });
+    console.log(`API Response: ${response.status} ${response.statusText}`);
 
-        const { user, token, refreshToken } = await authService.register(data);
-
-        set({
-          user,
-          token,
-          refreshToken,
-          isAuthenticated: true,
-          isLoading: false,
-          lastLoginDate: new Date().toISOString(),
-          error: null,
-        });
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Registration failed";
-        set({
-          isLoading: false,
-          error: errorMessage,
-          isAuthenticated: false,
-          user: null,
-          token: null,
-          refreshToken: null,
-        });
-        throw error;
-      }
-    },
-
-    logout: async () => {
-      try {
-        set({ isLoading: true });
-
-        await authService.logout();
-
-        set({
-          user: null,
-          token: null,
-          refreshToken: null,
-          isAuthenticated: false,
-          isLoading: false,
-          biometricEnabled: false,
-          lastLoginDate: undefined,
-          error: null,
-        });
-      } catch (error) {
-        
-        set({
-          user: null,
-          token: null,
-          refreshToken: null,
-          isAuthenticated: false,
-          isLoading: false,
-          biometricEnabled: false,
-          lastLoginDate: undefined,
-          error: null,
-        });
-        console.warn("Logout error:", error);
-      }
-    },
-
-    refreshUser: async () => {
-      try {
-        const { isAuthenticated } = get();
-        if (!isAuthenticated) return;
-
-        set({ isLoading: true, error: null });
-
-        const user = await authService.getCurrentUser();
-
-        set({
-          user,
-          isLoading: false,
-          error: null,
-        });
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to refresh user";
-        set({
-          isLoading: false,
-          error: errorMessage,
-        });
-
-        
-        if (error instanceof Error && error.message.includes("Unauthorized")) {
-          get().logout();
-        }
-      }
-    },
-
-    initializeAuth: async () => {
-      try {
-        set({ isLoading: true, error: null });
-
-        const { user, token, refreshToken } =
-          await authService.getStoredAuthData();
-
-        if (user && token) {
-          
-          const biometricEnabled = await authService.isBiometricEnabled();
-
-          set({
-            user,
-            token,
-            refreshToken,
-            isAuthenticated: true,
-            biometricEnabled,
-            isLoading: false,
-            error: null,
-          });
-
-          
-          try {
-            await get().refreshUser();
-          } catch (error) {
-            
-            console.warn("Failed to refresh user on init:", error);
-          }
-        } else {
-          set({
-            isLoading: false,
-            isAuthenticated: false,
-            error: null,
-          });
-        }
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to initialize auth";
-        set({
-          isLoading: false,
-          error: errorMessage,
-          isAuthenticated: false,
-        });
-      }
-    },
-
-    enableBiometric: async () => {
-      try {
-        set({ isLoading: true, error: null });
-
-        const enabled = await authService.enableBiometricAuth();
-
-        set({
-          biometricEnabled: enabled,
-          isLoading: false,
-          error: null,
-        });
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Failed to enable biometric auth";
-        set({
-          isLoading: false,
-          error: errorMessage,
-          biometricEnabled: false,
-        });
-        throw error;
-      }
-    },
-
-    disableBiometric: async () => {
-      try {
-        set({ isLoading: true, error: null });
-
-        await authService.disableBiometricAuth();
-
-        set({
-          biometricEnabled: false,
-          isLoading: false,
-          error: null,
-        });
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Failed to disable biometric auth";
-        set({
-          isLoading: false,
-          error: errorMessage,
-        });
-        throw error;
-      }
-    },
-
-    autoLoginWithBiometric: async () => {
-      try {
-        set({ isLoading: true, error: null });
-
-        const result = await authService.autoLoginWithBiometric();
-
-        if (result.success && result.user) {
-          set({
-            user: result.user,
-            isAuthenticated: true,
-            isLoading: false,
-            lastLoginDate: new Date().toISOString(),
-            error: null,
-          });
-          return true;
-        } else {
-          set({
-            isLoading: false,
-            error: result.error || "Biometric login failed",
-          });
-          return false;
-        }
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Biometric login failed";
-        set({
-          isLoading: false,
-          error: errorMessage,
-        });
-        return false;
-      }
-    },
-
-    setLoading: (loading: boolean) => {
-      set({ isLoading: loading });
-    },
-
-    clearError: () => {
-      set({ error: null });
-    },
-  }))
-);
-
-
-useAuthStore.subscribe(
-  (state) => state.isAuthenticated,
-  (isAuthenticated, previousIsAuthenticated) => {
-    if (isAuthenticated !== previousIsAuthenticated) {
-      console.log("Auth state changed:", { isAuthenticated });
-
-      
-      
-      
-      
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API Error: ${response.status} - ${errorText}`);
+      throw new Error(
+        `Login failed: ${response.status} ${response.statusText}`
+      );
     }
+
+    const result = await response.json();
+    console.log("API Success:", result);
+    return result;
+  } catch (error) {
+    console.error("API Call Error:", error);
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error("Network error. Please check your connection.");
   }
-);
+};
+
+export const useAuthStore = create<SimpleAuthStore>((set, get) => ({
+  user: null,
+  isAuthenticated: false,
+  isLoading: false,
+  biometricEnabled: false,
+  error: null,
+
+  login: async (email: string, password: string) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const userData = await apiCall("/users/login/", "POST", {
+        email,
+        password,
+      });
+
+      
+      await AsyncStorage.setItem("teebay_user", JSON.stringify(userData));
+      await AsyncStorage.setItem("teebay_login_time", new Date().toISOString());
+
+      set({
+        user: userData,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Login failed";
+      set({
+        isLoading: false,
+        error: errorMessage,
+        isAuthenticated: false,
+        user: null,
+      });
+      throw error;
+    }
+  },
+
+  register: async (userData: RegisterData) => {
+    try {
+      set({ isLoading: true, error: null });
+
+      const user = await apiCall("/users/register/", "POST", userData);
+
+      
+      await AsyncStorage.setItem("teebay_user", JSON.stringify(user));
+      await AsyncStorage.setItem("teebay_login_time", new Date().toISOString());
+
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Registration failed";
+      set({
+        isLoading: false,
+        error: errorMessage,
+        isAuthenticated: false,
+        user: null,
+      });
+      throw error;
+    }
+  },
+
+  logout: async () => {
+    try {
+      set({ isLoading: true });
+
+      
+      await AsyncStorage.multiRemove(["teebay_user", "teebay_login_time"]);
+
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+    } catch (error) {
+      
+      set({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+      console.warn("Logout storage clear error:", error);
+    }
+  },
+
+  initializeAuth: async () => {
+    try {
+      set({ isLoading: true });
+
+      const [userString, loginTimeString, biometricEnabled] =
+        await AsyncStorage.multiGet([
+          "teebay_user",
+          "teebay_login_time",
+          "teebay_biometric_enabled",
+        ]);
+
+      const user = userString[1] ? JSON.parse(userString[1]) : null;
+      const loginTime = loginTimeString[1]
+        ? new Date(loginTimeString[1])
+        : null;
+      const biometric = biometricEnabled[1] === "true";
+
+      
+      const isValid =
+        loginTime && Date.now() - loginTime.getTime() < 7 * 24 * 60 * 60 * 1000;
+
+      if (user && isValid) {
+        set({
+          user,
+          isAuthenticated: true,
+          biometricEnabled: biometric,
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        
+        await AsyncStorage.multiRemove(["teebay_user", "teebay_login_time"]);
+        set({
+          user: null,
+          isAuthenticated: false,
+          biometricEnabled: false,
+          isLoading: false,
+          error: null,
+        });
+      }
+    } catch (error) {
+      set({
+        user: null,
+        isAuthenticated: false,
+        biometricEnabled: false,
+        isLoading: false,
+        error: null,
+      });
+      console.warn("Auth initialization error:", error);
+    }
+  },
+
+  enableBiometric: async () => {
+    try {
+      const { user } = get();
+      if (!user) return;
+
+      await AsyncStorage.multiSet([
+        ["teebay_biometric_enabled", "true"],
+        ["teebay_biometric_email", user.email],
+        ["teebay_biometric_password", "stored"], 
+      ]);
+
+      set({ biometricEnabled: true });
+    } catch (error) {
+      console.warn("Enable biometric error:", error);
+      throw error;
+    }
+  },
+
+  setLoading: (loading: boolean) => {
+    set({ isLoading: loading });
+  },
+
+  clearError: () => {
+    set({ error: null });
+  },
+}));
 
 
 export const useAuth = () =>
@@ -333,10 +245,7 @@ export const useAuthActions = () =>
     login: state.login,
     register: state.register,
     logout: state.logout,
-    refreshUser: state.refreshUser,
     initializeAuth: state.initializeAuth,
     enableBiometric: state.enableBiometric,
-    disableBiometric: state.disableBiometric,
-    autoLoginWithBiometric: state.autoLoginWithBiometric,
     clearError: state.clearError,
   }));

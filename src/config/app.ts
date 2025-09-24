@@ -1,23 +1,16 @@
-
-
 export const APP_CONFIG = {
-  
   NAME: "TeeBay",
   VERSION: "1.0.0",
   PACKAGE_NAME: "com.teebay.appname",
 
-  
   SECURITY: {
-    
     ACCESS_TOKEN_KEY: "teebay_access_token",
     REFRESH_TOKEN_KEY: "teebay_refresh_token",
     USER_DATA_KEY: "teebay_user_data",
     BIOMETRIC_KEY: "teebay_biometric_enabled",
 
-    
     TOKEN_REFRESH_BUFFER: 5 * 60 * 1000,
 
-    
     BIOMETRIC_PROMPT: {
       title: "Authenticate",
       subtitle: "Use your biometric to access TeeBay",
@@ -27,42 +20,39 @@ export const APP_CONFIG = {
     },
   },
 
-  
   STORAGE: {
-    
     USER_KEY: "teebay_user",
     TOKEN_KEY: "teebay_token",
     REFRESH_TOKEN_KEY: "teebay_refresh_token",
     BIOMETRIC_KEY: "teebay_biometric_enabled",
 
-    
     SETTINGS_KEY: "teebay_settings",
     ONBOARDING_COMPLETED_KEY: "teebay_onboarding_completed",
     LAST_SYNC_KEY: "teebay_last_sync",
     DRAFT_PRODUCT_KEY: "teebay_draft_product",
 
-    
+    LAST_LOGIN_KEY: "teebay_last_login_at",
+
     IMAGE_CACHE_SIZE: 100,
     DATA_CACHE_SIZE: 50,
   },
 
-  
+  SESSION: {
+    MAX_AGE_MS: 3 * 24 * 60 * 60 * 1000,
+  },
+
   PERFORMANCE: {
-    
     INITIAL_NUM_TO_RENDER: 10,
     MAX_TO_RENDER_PER_BATCH: 5,
     WINDOW_SIZE: 10,
 
-    
     IMAGE_QUALITY: 0.8,
     THUMBNAIL_SIZE: { width: 300, height: 300 },
     LARGE_IMAGE_SIZE: { width: 1200, height: 1200 },
 
-    
     REQUEST_TIMEOUT: 10000,
     UPLOAD_TIMEOUT: 30000,
 
-    
     ANIMATION_DURATION: 300,
     SPRING_CONFIG: {
       damping: 15,
@@ -70,9 +60,7 @@ export const APP_CONFIG = {
     },
   },
 
-  
   UI: {
-    
     SPACING: {
       xs: 4,
       sm: 8,
@@ -82,7 +70,6 @@ export const APP_CONFIG = {
       xxl: 48,
     },
 
-    
     BORDER_RADIUS: {
       sm: 4,
       md: 8,
@@ -91,7 +78,6 @@ export const APP_CONFIG = {
       round: 9999,
     },
 
-    
     SHADOWS: {
       sm: {
         shadowOffset: { width: 0, height: 1 },
@@ -113,7 +99,6 @@ export const APP_CONFIG = {
       },
     },
 
-    
     FONT_SIZES: {
       xs: 12,
       sm: 14,
@@ -124,7 +109,6 @@ export const APP_CONFIG = {
       xxxl: 32,
     },
 
-    
     ICON_SIZES: {
       xs: 16,
       sm: 20,
@@ -134,19 +118,15 @@ export const APP_CONFIG = {
     },
   },
 
-  
   FORMS: {
-    
     MIN_PASSWORD_LENGTH: 8,
     MAX_TITLE_LENGTH: 100,
     MAX_DESCRIPTION_LENGTH: 1000,
     MAX_IMAGES_PER_PRODUCT: 5,
 
-    
-    MAX_IMAGE_SIZE: 5 * 1024 * 1024, 
+    MAX_IMAGE_SIZE: 5 * 1024 * 1024,
     ALLOWED_IMAGE_TYPES: ["image/jpeg", "image/png", "image/webp"],
 
-    
     STEPS: {
       PRODUCT_CREATE: [
         { id: "basic", title: "Basic Information", required: true },
@@ -157,11 +137,9 @@ export const APP_CONFIG = {
       ],
     },
 
-    
-    AUTO_SAVE_INTERVAL: 30000, 
+    AUTO_SAVE_INTERVAL: 30000,
   },
 
-  
   CATEGORIES: [
     {
       id: "electronics",
@@ -191,7 +169,6 @@ export const APP_CONFIG = {
     { id: "toys", name: "TOYS", displayName: "Toys", icon: "puzzle" },
   ] as const,
 
-  
   RENT_TYPES: [
     { value: "HOURLY", label: "Per Hour" },
     { value: "DAILY", label: "Per Day" },
@@ -199,7 +176,6 @@ export const APP_CONFIG = {
     { value: "MONTHLY", label: "Per Month" },
   ] as const,
 
-  
   CONDITIONS: [
     { value: "NEW", label: "New", description: "Brand new, never used" },
     {
@@ -224,13 +200,11 @@ export const APP_CONFIG = {
     },
   ] as const,
 
-  
   PAGINATION: {
     DEFAULT_PAGE_SIZE: 20,
     MAX_PAGE_SIZE: 100,
   },
 
-  
   ERRORS: {
     NETWORK: "Network error. Please check your connection.",
     TIMEOUT: "Request timed out. Please try again.",
@@ -245,7 +219,6 @@ export const APP_CONFIG = {
       "No biometric credentials are enrolled on this device.",
   },
 } as const;
-
 
 export const getEnvironmentConfig = () => {
   return {

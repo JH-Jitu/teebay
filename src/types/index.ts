@@ -1,21 +1,12 @@
-
-
-
-
-
-
 export interface User {
-  id: string;
+  id: number;
   email: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  address?: string;
-  dateOfBirth?: string;
-  profilePicture?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
+  first_name: string;
+  last_name: string;
+  address: string;
+  firebase_console_manager_token: string;
+  password: string;
+  date_joined: string;
 }
 
 export interface AuthState {
@@ -36,11 +27,33 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  address?: string;
-  dateOfBirth?: string;
+  first_name: string;
+  last_name: string;
+  address: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+  address: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  address: string;
+  firebase_console_manager_token: string;
+  password: string;
+  date_joined: string;
 }
 
 export interface BiometricAuthResult {
@@ -49,9 +62,49 @@ export interface BiometricAuthResult {
   biometryType?: "TouchID" | "FaceID" | "Fingerprint" | "None";
 }
 
+export interface AuthInputProps {
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder?: string;
+  secureTextEntry?: boolean;
+  error?: string;
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  keyboardType?: string;
+  testID?: string;
+}
 
+export interface AuthButtonProps {
+  title: string;
+  onPress: () => void;
+  variant: "primary" | "secondary" | "biometric";
+  loading?: boolean;
+  disabled?: boolean;
+  icon?: React.ReactNode;
+  testID?: string;
+}
 
+export interface AuthContainerProps {
+  children: React.ReactNode;
+  title: string;
+  subtitle?: string;
+  showBackButton?: boolean;
+  onBackPress?: () => void;
+}
 
+export interface BiometricPromptProps {
+  visible: boolean;
+  onEnable: () => void;
+  onSkip: () => void;
+  onClose: () => void;
+}
+
+export interface BiometricCapabilities {
+  hasHardware: boolean;
+  hasFingerprint: boolean;
+  hasFaceID: boolean;
+  isEnrolled: boolean;
+}
 
 export type CategoryName =
   | "ELECTRONICS"
@@ -123,10 +176,6 @@ export interface ProductFilters {
   search?: string;
 }
 
-
-
-
-
 export interface BaseTransaction {
   id: string;
   productId: string;
@@ -168,10 +217,6 @@ export interface TransactionHistory {
   lent: RentTransaction[];
 }
 
-
-
-
-
 export interface ApiResponse<T> {
   data: T | null;
   success: boolean;
@@ -197,10 +242,6 @@ export interface ApiError {
   details?: Record<string, unknown>;
 }
 
-
-
-
-
 export interface FormStep {
   id: string;
   title: string;
@@ -225,10 +266,6 @@ export interface FormFieldValidation {
   custom?: (value: unknown) => string | undefined;
 }
 
-
-
-
-
 export interface NotificationPayload {
   productId?: string;
   transactionId?: string;
@@ -247,10 +284,6 @@ export interface PushNotification {
   createdAt: string;
 }
 
-
-
-
-
 export interface AppSettings {
   theme: "light" | "dark" | "system";
   language: "en" | "es" | "fr";
@@ -266,10 +299,6 @@ export interface AppState {
   settings: AppSettings;
   lastActiveDate: string;
 }
-
-
-
-
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -290,10 +319,6 @@ export type TabParamList = {
   Profile: undefined;
 };
 
-
-
-
-
 export interface ImageCacheConfig {
   maxAge: number;
   maxSize: number;
@@ -311,10 +336,6 @@ export interface ListOptimization {
   initialNumToRender?: number;
   maxToRenderPerBatch?: number;
 }
-
-
-
-
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>;

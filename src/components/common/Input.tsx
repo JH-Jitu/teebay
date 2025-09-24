@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: Typography.fontSize.base,
-    // lineHeight: Typography.lineHeight.normal,
+    
     paddingVertical: Spacing.sm,
   },
   input_sm: {
@@ -273,13 +273,11 @@ const styles = StyleSheet.create({
 
   errorText: {
     fontSize: Typography.fontSize.xs,
-    lineHeight: Typography.lineHeight.tight,
     marginTop: Spacing.xs,
   },
 
   hintText: {
     fontSize: Typography.fontSize.xs,
-    lineHeight: Typography.lineHeight.tight,
     marginTop: Spacing.xs,
   },
 });

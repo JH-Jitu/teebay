@@ -4,9 +4,7 @@ import { LoadingSpinner } from "@/src/components/common/LoadingSpinner";
 import { Modal } from "@/src/components/common/Modal";
 import { Colors, Spacing, Typography } from "@/src/constants/theme";
 import { useAuth } from "@/src/hooks/auth/useAuth";
-import { useBiometricAvailability } from "@/src/hooks/auth/useBiometric";
-import { apiService } from "@/src/services/api";
-import { authService } from "@/src/services/auth";
+import { useBiometric } from "@/src/hooks/auth/useBiometric";
 import { firebaseService } from "@/src/services/firebase-expo";
 import { useAppStore } from "@/src/store/app";
 import { useAuthStore } from "@/src/store/auth";
@@ -33,8 +31,12 @@ export default function TestScreen() {
   const [password, setPassword] = useState("123456");
 
   const { user, isAuthenticated, login, logout } = useAuth();
-  const biometricAvailability = useBiometricAvailability();
   const authStore = useAuthStore();
+  const {
+    checkBiometricAvailability,
+    authenticateWithBiometric,
+    biometricEnabled,
+  } = useBiometric();
   const appStore = useAppStore();
 
   const addResult = (message: string, success: boolean = true) => {
@@ -45,18 +47,8 @@ export default function TestScreen() {
   const testApiService = async () => {
     setLoading(true);
     try {
-      const connectResponse = await apiService.get("/");
-      addResult(
-        `Django Backend: ${
-          connectResponse.success ? "Connected ✓" : "Offline ✗"
-        }`
-      );
-
-      const productsResponse = await apiService.get("/products/");
-      addResult(
-        `Products API: ${productsResponse.success ? "Available ✓" : "Failed ✗"}`
-      );
-
+      const response = await fetch("http://192.168.0.113:8000/api/users/");
+      addResult(`Django Backend: ${response.ok ? "Connected ✓" : "Offline ✗"}`);
       addResult("API Service tests completed");
     } catch (error) {
       addResult(`API Service Error: ${error}`, false);
@@ -67,12 +59,8 @@ export default function TestScreen() {
   const testAuthService = async () => {
     setLoading(true);
     try {
-      const loginResult = await authService.login({ email, password });
-      addResult(`Auth Login Test: Success - User: ${loginResult.user.email}`);
-
-      const currentUser = await authService.getCurrentUser();
-      addResult(`Get Current User: Success - ${currentUser.email}`);
-
+      await login(email, password);
+      addResult(`Auth Login Test: Success - User: ${email}`);
       addResult("Auth Service tests completed");
     } catch (error) {
       addResult(`Auth Service Error: ${error}`, false);
@@ -96,6 +84,16 @@ export default function TestScreen() {
         if (token) {
           addResult(`FCM Token: Retrieved ✓`);
           addResult(`Token Preview: ${token.substring(0, 20)}...`);
+
+          try {
+            await useAuthStore.getState().updateFCMToken(token);
+            addResult("FCM Token: Updated in backend ✓");
+          } catch (updateError) {
+            addResult(
+              `FCM Token: Backend update failed - ${updateError}`,
+              false
+            );
+          }
         } else {
           addResult("FCM Token: Unavailable (timeout/no dev build) ✗", false);
         }
@@ -118,7 +116,8 @@ export default function TestScreen() {
         title: "Local Notification",
         body: "This verifies notification UI without FCM.",
         data: {},
-        timestamp: new Date(),
+        isRead: false,
+        createdAt: new Date().toISOString(),
       });
       addResult("Local Notification shown ✓");
     } catch (e) {
@@ -127,26 +126,77 @@ export default function TestScreen() {
   };
 
   const testBiometric = async () => {
-    setLoading(true);
     try {
-      const isAvailable = await authService.isBiometricAvailable();
-      addResult(`Biometric Available: ${isAvailable ? "Yes" : "No"}`);
+      addResult("Testing biometric capabilities...");
+
+      const isAvailable = await checkBiometricAvailability();
+      addResult(`Biometric Available: ${isAvailable ? "✓" : "✗"}`);
+      addResult(`Biometric Enabled: ${biometricEnabled ? "✓" : "✗"}`);
 
       if (isAvailable) {
-        const types = await authService.getBiometricTypes();
-        addResult(`Biometric Types: ${types.length} types found`);
-
-        const authResult = await authService.authenticateWithBiometric();
-        addResult(
-          `Biometric Auth: ${authResult.success ? "Success" : "Failed"}`
-        );
+        try {
+          const result = await authenticateWithBiometric();
+          addResult(`Biometric Test: ${result ? "✓" : "✗"}`);
+        } catch (authError) {
+          addResult(`Auth Error: ${authError}`, false);
+        }
+      } else {
+        addResult("Biometric auth not available on this device", false);
       }
 
-      addResult("Biometric tests completed");
+      addResult("Biometric tests completed ✓");
     } catch (error) {
       addResult(`Biometric Error: ${error}`, false);
     }
-    setLoading(false);
+  };
+
+  const testUserProfile = async () => {
+    try {
+      addResult("Testing user profile...");
+
+      if (!user) {
+        addResult("No user logged in ✗", false);
+        return;
+      }
+
+      addResult(`User ID: ${user.id}`);
+      addResult(`Email: ${user.email}`);
+      addResult(`Name: ${user.first_name} ${user.last_name}`);
+      addResult(`Address: ${user.address}`);
+
+      if (user.firebase_console_manager_token) {
+        addResult(
+          `FCM Token: ${user.firebase_console_manager_token.substring(
+            0,
+            20
+          )}...`
+        );
+      } else {
+        addResult("No FCM token stored", false);
+      }
+
+      try {
+        const currentUser = await authService.getCurrentUser();
+        addResult("Profile refresh: ✓");
+        addResult(`Backend sync: ${currentUser.id === user.id ? "✓" : "✗"}`);
+      } catch (profileError) {
+        addResult(`Profile refresh failed: ${profileError}`, false);
+      }
+
+      addResult("User profile tests completed ✓");
+    } catch (error) {
+      addResult(`Profile Error: ${error}`, false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      addResult("Logout successful ✓");
+      addResult("Redirecting to auth...");
+    } catch (error) {
+      addResult(`Logout error: ${error}`, false);
+    }
   };
 
   const testStores = () => {
@@ -247,8 +297,7 @@ export default function TestScreen() {
                 { color: Colors[theme].textSecondary },
               ]}
             >
-              Biometric:{" "}
-              {biometricAvailability.data ? "Available" : "Not Available"}
+              Biometric: {biometricEnabled ? "Enabled" : "Disabled"}
             </Text>
             <Text style={[styles.statusText, { color: Colors[theme].info }]}>
               💡 Make sure Django backend is running on http:
@@ -315,6 +364,24 @@ export default function TestScreen() {
               <Button
                 title="🔔 Show Local"
                 onPress={showLocalNotification}
+                style={styles.testButton}
+                size="sm"
+              />
+              <Button
+                title="👆 Test Biometric"
+                onPress={testBiometric}
+                style={styles.testButton}
+                size="sm"
+              />
+              <Button
+                title="👤 Test Profile"
+                onPress={testUserProfile}
+                style={styles.testButton}
+                size="sm"
+              />
+              <Button
+                title="🚪 Logout"
+                onPress={handleLogout}
                 style={styles.testButton}
                 size="sm"
               />
@@ -421,7 +488,7 @@ export default function TestScreen() {
               ) : (
                 <Button
                   title="Quick Login"
-                  onPress={() => login({ email, password })}
+                  onPress={() => login(email, password)}
                   variant="primary"
                   style={styles.fullButton}
                 />

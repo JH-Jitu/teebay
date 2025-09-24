@@ -1,13 +1,28 @@
 import { Image } from "expo-image";
+import { Link, Redirect, useRootNavigationState } from "expo-router";
 import { Platform, StyleSheet } from "react-native";
 
 import { HelloWave } from "@/src/components/hello-wave";
 import ParallaxScrollView from "@/src/components/parallax-scroll-view";
 import { ThemedText } from "@/src/components/themed-text";
 import { ThemedView } from "@/src/components/themed-view";
-import { Link } from "expo-router";
+import { useAuthStore } from "@/src/store/auth";
 
 export default function HomeScreen() {
+  const { isAuthenticated, isLoading } = useAuthStore();
+  const navigationState = useRootNavigationState();
+
+  if (isLoading || !navigationState?.key) {
+    return (
+      <ThemedView style={styles.loadingContainer}>
+        <ThemedText>Loading...</ThemedText>
+      </ThemedView>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Redirect href="/auth/welcome" />;
+  }
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -88,6 +103,11 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   titleContainer: {
     flexDirection: "row",
     alignItems: "center",

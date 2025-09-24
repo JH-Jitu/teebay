@@ -432,7 +432,6 @@ const styles = StyleSheet.create({
   },
   confirmMessage: {
     fontSize: Typography.fontSize.base,
-    lineHeight: Typography.lineHeight.normal,
     textAlign: "center",
     marginBottom: Spacing.xl,
   },
@@ -463,7 +462,6 @@ const styles = StyleSheet.create({
   },
   alertMessage: {
     fontSize: Typography.fontSize.base,
-    lineHeight: Typography.lineHeight.normal,
     textAlign: "center",
     marginBottom: Spacing.xl,
   },

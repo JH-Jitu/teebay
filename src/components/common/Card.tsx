@@ -1,5 +1,3 @@
-
-
 import {
   BorderRadius,
   Colors,
@@ -17,10 +15,6 @@ import {
   ViewStyle,
   useColorScheme,
 } from "react-native";
-
-
-
-
 
 export type CardVariant = "default" | "elevated" | "outlined";
 
@@ -42,10 +36,6 @@ export interface TouchableCardProps
   disabled?: boolean;
 }
 
-
-
-
-
 export const Card: React.FC<CardProps> = ({
   variant = "default",
   children,
@@ -58,10 +48,8 @@ export const Card: React.FC<CardProps> = ({
   const colorScheme = useColorScheme();
   const theme = colorScheme ?? "light";
 
-  
   const cardTheme = ComponentThemes.card[variant][theme];
 
-  
   const cardStyles = [
     styles.base,
     {
@@ -70,12 +58,12 @@ export const Card: React.FC<CardProps> = ({
       padding: Spacing[padding],
     },
     margin && { margin: Spacing[margin] },
-    
+
     variant === "outlined" && {
       borderWidth: 1,
       borderColor: cardTheme.borderColor,
     },
-    
+
     variant === "elevated" && {
       ...Shadows.md,
       shadowColor: cardTheme.shadowColor,
@@ -91,10 +79,6 @@ export const Card: React.FC<CardProps> = ({
   );
 };
 
-
-
-
-
 export const TouchableCard: React.FC<TouchableCardProps> = ({
   variant = "default",
   children,
@@ -109,10 +93,8 @@ export const TouchableCard: React.FC<TouchableCardProps> = ({
   const colorScheme = useColorScheme();
   const theme = colorScheme ?? "light";
 
-  
   const cardTheme = ComponentThemes.card[variant][theme];
 
-  
   const cardStyles = [
     styles.base,
     styles.touchable,
@@ -122,12 +104,12 @@ export const TouchableCard: React.FC<TouchableCardProps> = ({
       padding: Spacing[padding],
     },
     margin && { margin: Spacing[margin] },
-    
+
     variant === "outlined" && {
       borderWidth: 1,
       borderColor: cardTheme.borderColor,
     },
-    
+
     variant === "elevated" && {
       ...Shadows.md,
       shadowColor: cardTheme.shadowColor,
@@ -150,10 +132,6 @@ export const TouchableCard: React.FC<TouchableCardProps> = ({
   );
 };
 
-
-
-
-
 export interface CardHeaderProps extends ViewProps {
   children: React.ReactNode;
   style?: ViewStyle;
@@ -175,10 +153,6 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
   );
 };
 
-
-
-
-
 export interface CardContentProps extends ViewProps {
   children: React.ReactNode;
   style?: ViewStyle;
@@ -199,10 +173,6 @@ export const CardContent: React.FC<CardContentProps> = ({
     </View>
   );
 };
-
-
-
-
 
 export interface CardFooterProps extends ViewProps {
   children: React.ReactNode;
@@ -234,23 +204,15 @@ export const CardFooter: React.FC<CardFooterProps> = ({
   );
 };
 
-
-
-
-
 const styles = StyleSheet.create({
   base: {
-    overflow: "hidden",
+    overflow: "visible",
   },
-  touchable: {
-    
-  },
+  touchable: {},
   disabled: {
     opacity: 0.5,
   },
-  header: {
-    
-  },
+  header: {},
   content: {
     flex: 1,
   },
@@ -261,25 +223,17 @@ const styles = StyleSheet.create({
   },
 });
 
-
-
-
-
-
 export const ElevatedCard: React.FC<Omit<CardProps, "variant">> = (props) => (
   <Card variant="elevated" {...props} />
 );
-
 
 export const OutlinedCard: React.FC<Omit<CardProps, "variant">> = (props) => (
   <Card variant="outlined" {...props} />
 );
 
-
 export const TouchableElevatedCard: React.FC<
   Omit<TouchableCardProps, "variant">
 > = (props) => <TouchableCard variant="elevated" {...props} />;
-
 
 export const TouchableOutlinedCard: React.FC<
   Omit<TouchableCardProps, "variant">

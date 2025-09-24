@@ -1,5 +1,3 @@
-
-
 function resolveDevBaseUrl(): string {
   const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
   if (envUrl && typeof envUrl === "string" && envUrl.length > 0) return envUrl;
@@ -7,34 +5,27 @@ function resolveDevBaseUrl(): string {
 }
 
 export const API_CONFIG = {
-  
-  
   BASE_URL: __DEV__ ? resolveDevBaseUrl() : "https://your-production-api.com",
 
-  
   TIMEOUT: 10000,
 
-  
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
 
-  
-  CACHE_TIME: 5 * 60 * 1000, 
-  STALE_TIME: 1 * 60 * 1000, 
+  CACHE_TIME: 5 * 60 * 1000,
+  STALE_TIME: 1 * 60 * 1000,
 
-  
   ENDPOINTS: {
     
     AUTH: {
       LOGIN: "/users/login/",
       REGISTER: "/users/register/",
+      PROFILE: "/users/profile/",
       REFRESH: "/users/token/refresh/",
       LOGOUT: "/users/logout/",
-      PROFILE: "/users/profile/",
       CHANGE_PASSWORD: "/users/change-password/",
     },
 
-    
     PRODUCTS: {
       LIST: "/products/",
       CREATE: "/products/",
@@ -46,13 +37,11 @@ export const API_CONFIG = {
       MY_PRODUCTS: "/products/my-products/",
     },
 
-    
     CATEGORIES: {
       LIST: "/categories/",
       DETAIL: (id: string) => `/categories/${id}/`,
     },
 
-    
     TRANSACTIONS: {
       LIST: "/transactions/",
       CREATE: "/transactions/",
@@ -63,14 +52,12 @@ export const API_CONFIG = {
       RENT: "/transactions/rent/",
     },
 
-    
     USERS: {
       LIST: "/users/",
       DETAIL: (id: string) => `/users/${id}/`,
       UPDATE_PROFILE: "/users/profile/",
     },
 
-    
     NOTIFICATIONS: {
       LIST: "/notifications/",
       MARK_READ: (id: string) => `/notifications/${id}/mark-read/`,
@@ -79,7 +66,6 @@ export const API_CONFIG = {
     },
   },
 } as const;
-
 
 export const HTTP_STATUS = {
   OK: 200,
@@ -91,7 +77,6 @@ export const HTTP_STATUS = {
   NOT_FOUND: 404,
   INTERNAL_SERVER_ERROR: 500,
 } as const;
-
 
 export const CONTENT_TYPES = {
   JSON: "application/json",
