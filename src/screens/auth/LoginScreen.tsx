@@ -448,5 +448,4 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
   },
 });
-
 export default LoginScreen;

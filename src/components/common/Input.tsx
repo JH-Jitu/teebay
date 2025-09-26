@@ -140,20 +140,14 @@ export const Input = forwardRef<TextInput, InputProps>(
 
     return (
       <View style={containerStyles}>
-        {}
         {label && (
           <Text style={labelStyles}>
             {label}
             {required && <Text style={{ color: Colors[theme].error }}> *</Text>}
           </Text>
         )}
-
-        {}
         <View style={inputContainerStyles}>
-          {}
           {leftIcon && <View style={styles.leftIcon}>{leftIcon}</View>}
-
-          {}
           <TextInput
             ref={ref}
             style={textInputStyles}
@@ -165,8 +159,6 @@ export const Input = forwardRef<TextInput, InputProps>(
             onBlur={handleBlur}
             {...props}
           />
-
-          {}
           {rightIcon && (
             <TouchableOpacity
               style={styles.rightIcon}
@@ -178,11 +170,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             </TouchableOpacity>
           )}
         </View>
-
-        {}
         {error && <Text style={errorStyles}>{error}</Text>}
-
-        {}
         {hint && !error && <Text style={hintStyles}>{hint}</Text>}
       </View>
     );
@@ -236,7 +224,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: Typography.fontSize.base,
-    
+
     paddingVertical: Spacing.sm,
   },
   input_sm: {

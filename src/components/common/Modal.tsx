@@ -86,7 +86,7 @@ export const Modal: React.FC<ModalProps> = ({
       );
       scale.value = withTiming(0.8, { duration: 200 });
     }
-  }, [visible, position]);
+  }, [visible, position, opacity, translateY, scale]);
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -367,6 +367,7 @@ const styles = StyleSheet.create({
 
   container: {
     overflow: "hidden",
+    height: "100%",
   },
 
   center: {},
@@ -424,7 +425,6 @@ const styles = StyleSheet.create({
 
   content: {
     flex: 1,
-    padding: Spacing.lg,
   },
 
   confirmContent: {

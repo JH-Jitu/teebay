@@ -77,7 +77,7 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
           borderColor: Colors[theme].primary,
           borderWidth: 1,
         };
-      default: 
+      default:
         return {
           backgroundColor: Colors[theme].primary,
         };
@@ -90,7 +90,7 @@ export const AuthButton: React.FC<AuthButtonProps> = ({
         return Colors[theme].text;
       case "biometric":
         return Colors[theme].primary;
-      default: 
+      default:
         return Colors[theme].background;
     }
   };
@@ -147,7 +147,7 @@ export const BiometricButton: React.FC<
     <AuthButton
       {...props}
       variant="biometric"
-      title={`Login with ${biometricType}`}
+      title={`Login with Biometric`}
       icon={
         <Text style={styles.biometricIcon}>
           {biometricType.includes("Face") ? "👤" : "👆"}

@@ -172,6 +172,7 @@ export const AuthFooter: React.FC<{
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: Spacing.lg,
   },
   scrollView: {
     flex: 1,

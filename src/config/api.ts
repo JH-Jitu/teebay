@@ -16,14 +16,9 @@ export const API_CONFIG = {
   STALE_TIME: 1 * 60 * 1000,
 
   ENDPOINTS: {
-    
     AUTH: {
       LOGIN: "/users/login/",
       REGISTER: "/users/register/",
-      PROFILE: "/users/profile/",
-      REFRESH: "/users/token/refresh/",
-      LOGOUT: "/users/logout/",
-      CHANGE_PASSWORD: "/users/change-password/",
     },
 
     PRODUCTS: {
@@ -32,37 +27,21 @@ export const API_CONFIG = {
       DETAIL: (id: string) => `/products/${id}/`,
       UPDATE: (id: string) => `/products/${id}/`,
       DELETE: (id: string) => `/products/${id}/`,
-      IMAGES: (id: string) => `/products/${id}/images/`,
-      FAVORITES: "/products/favorites/",
-      MY_PRODUCTS: "/products/my-products/",
     },
 
     CATEGORIES: {
-      LIST: "/categories/",
-      DETAIL: (id: string) => `/categories/${id}/`,
+      LIST: "/products/categories/",
     },
 
     TRANSACTIONS: {
-      LIST: "/transactions/",
-      CREATE: "/transactions/",
-      DETAIL: (id: string) => `/transactions/${id}/`,
-      UPDATE: (id: string) => `/transactions/${id}/`,
-      HISTORY: "/transactions/history/",
-      BUY: "/transactions/buy/",
-      RENT: "/transactions/rent/",
+      PURCHASES: "/transactions/purchases/",
+      RENTALS: "/transactions/rentals/",
+      PURCHASE_DETAIL: (id: string) => `/transactions/purchases/${id}/`,
+      RENTAL_DETAIL: (id: string) => `/transactions/rentals/${id}/`,
     },
 
     USERS: {
       LIST: "/users/",
-      DETAIL: (id: string) => `/users/${id}/`,
-      UPDATE_PROFILE: "/users/profile/",
-    },
-
-    NOTIFICATIONS: {
-      LIST: "/notifications/",
-      MARK_READ: (id: string) => `/notifications/${id}/mark-read/`,
-      MARK_ALL_READ: "/notifications/mark-all-read/",
-      SETTINGS: "/notifications/settings/",
     },
   },
 } as const;

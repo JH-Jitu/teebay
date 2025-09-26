@@ -4,12 +4,7 @@ export const APP_CONFIG = {
   PACKAGE_NAME: "com.teebay.appname",
 
   SECURITY: {
-    ACCESS_TOKEN_KEY: "teebay_access_token",
-    REFRESH_TOKEN_KEY: "teebay_refresh_token",
-    USER_DATA_KEY: "teebay_user_data",
     BIOMETRIC_KEY: "teebay_biometric_enabled",
-
-    TOKEN_REFRESH_BUFFER: 5 * 60 * 1000,
 
     BIOMETRIC_PROMPT: {
       title: "Authenticate",
@@ -22,8 +17,6 @@ export const APP_CONFIG = {
 
   STORAGE: {
     USER_KEY: "teebay_user",
-    TOKEN_KEY: "teebay_token",
-    REFRESH_TOKEN_KEY: "teebay_refresh_token",
     BIOMETRIC_KEY: "teebay_biometric_enabled",
 
     SETTINGS_KEY: "teebay_settings",

@@ -1,25 +1,24 @@
+import { getStoredFCMToken } from "@/src/services/notifications";
 import type { RegisterData, User } from "@/src/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 
 interface SimpleAuthStore {
-  
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   biometricEnabled: boolean;
   error: string | null;
 
-  
   login: (email: string, password: string) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   initializeAuth: () => Promise<void>;
   enableBiometric: () => Promise<void>;
+  disableBiometric: (action: "disable" | "remove") => Promise<void>;
   setLoading: (loading: boolean) => void;
   clearError: () => void;
 }
-
 
 const apiCall = async (endpoint: string, method: string, data?: any) => {
   const baseUrl =
@@ -69,12 +68,17 @@ export const useAuthStore = create<SimpleAuthStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
 
-      const userData = await apiCall("/users/login/", "POST", {
+      const fcmToken = await getStoredFCMToken();
+
+      const response = await apiCall("/users/login/", "POST", {
         email,
         password,
+        fcm_token: fcmToken || "",
       });
 
-      
+      // Extract user from login response
+      const userData = response.user;
+
       await AsyncStorage.setItem("teebay_user", JSON.stringify(userData));
       await AsyncStorage.setItem("teebay_login_time", new Date().toISOString());
 
@@ -101,9 +105,16 @@ export const useAuthStore = create<SimpleAuthStore>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
 
-      const user = await apiCall("/users/register/", "POST", userData);
+      const fcmToken = await getStoredFCMToken();
 
-      
+      const response = await apiCall("/users/register/", "POST", {
+        ...userData,
+        firebase_console_manager_token: fcmToken || "",
+      });
+
+      // Extract user from register response (assuming similar structure)
+      const user = response.user || response;
+
       await AsyncStorage.setItem("teebay_user", JSON.stringify(user));
       await AsyncStorage.setItem("teebay_login_time", new Date().toISOString());
 
@@ -130,7 +141,6 @@ export const useAuthStore = create<SimpleAuthStore>((set, get) => ({
     try {
       set({ isLoading: true });
 
-      
       await AsyncStorage.multiRemove(["teebay_user", "teebay_login_time"]);
 
       set({
@@ -140,7 +150,6 @@ export const useAuthStore = create<SimpleAuthStore>((set, get) => ({
         error: null,
       });
     } catch (error) {
-      
       set({
         user: null,
         isAuthenticated: false,
@@ -168,7 +177,6 @@ export const useAuthStore = create<SimpleAuthStore>((set, get) => ({
         : null;
       const biometric = biometricEnabled[1] === "true";
 
-      
       const isValid =
         loginTime && Date.now() - loginTime.getTime() < 7 * 24 * 60 * 60 * 1000;
 
@@ -181,7 +189,6 @@ export const useAuthStore = create<SimpleAuthStore>((set, get) => ({
           error: null,
         });
       } else {
-        
         await AsyncStorage.multiRemove(["teebay_user", "teebay_login_time"]);
         set({
           user: null,
@@ -211,12 +218,31 @@ export const useAuthStore = create<SimpleAuthStore>((set, get) => ({
       await AsyncStorage.multiSet([
         ["teebay_biometric_enabled", "true"],
         ["teebay_biometric_email", user.email],
-        ["teebay_biometric_password", "stored"], 
+        ["teebay_biometric_password", user.password],
       ]);
 
       set({ biometricEnabled: true });
     } catch (error) {
       console.warn("Enable biometric error:", error);
+      throw error;
+    }
+  },
+
+  disableBiometric: async (action: "disable" | "remove") => {
+    try {
+      if (action === "remove") {
+        await AsyncStorage.multiRemove([
+          "teebay_biometric_enabled",
+          "teebay_biometric_email",
+          "teebay_biometric_password",
+        ]);
+      } else {
+        await AsyncStorage.multiRemove(["teebay_biometric_enabled"]);
+      }
+
+      set({ biometricEnabled: false });
+    } catch (error) {
+      console.warn("Disable biometric error:", error);
       throw error;
     }
   },
@@ -229,7 +255,6 @@ export const useAuthStore = create<SimpleAuthStore>((set, get) => ({
     set({ error: null });
   },
 }));
-
 
 export const useAuth = () =>
   useAuthStore((state) => ({

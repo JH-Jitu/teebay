@@ -131,24 +131,31 @@ export interface ProductImage {
 
 export interface Product {
   id: string;
+  seller: string | number;
   title: string;
   description: string;
-  categories: Category[];
-  images: ProductImage[];
+  categories: string[];
+  product_image?: string;
+  purchase_price?: string;
+  rent_price?: string;
+  rent_option?: "hour" | "day" | "week" | "month";
+  date_posted: string;
+
+  images?: ProductImage[];
   purchasePrice?: number;
   rentPrice?: number;
   rentType?: "HOURLY" | "DAILY" | "WEEKLY" | "MONTHLY";
-  availableForSale: boolean;
-  availableForRent: boolean;
-  isActive: boolean;
-  condition: "NEW" | "LIKE_NEW" | "GOOD" | "FAIR" | "POOR";
-  owner: User;
-  ownerId: string;
+  availableForSale?: boolean;
+  availableForRent?: boolean;
+  isActive?: boolean;
+  condition?: "NEW" | "LIKE_NEW" | "GOOD" | "FAIR" | "POOR";
+  owner?: User;
+  ownerId?: string;
   location?: string;
-  viewCount: number;
-  favoriteCount: number;
-  createdAt: string;
-  updatedAt: string;
+  viewCount?: number;
+  favoriteCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProductCreateData {
@@ -176,36 +183,64 @@ export interface ProductFilters {
   search?: string;
 }
 
+export interface PurchaseApiResponse {
+  id: number;
+  buyer: number;
+  seller: number;
+  product: number;
+  purchase_date: string;
+}
+
+export interface RentalApiResponse {
+  id: number;
+  renter: number;
+  seller: number;
+  product: number;
+  rent_option: "hour" | "day" | "week" | "month";
+  rent_period_start_date: string;
+  rent_period_end_date: string;
+  total_price: string;
+  rent_date: string;
+}
+
 export interface BaseTransaction {
   id: string;
   productId: string;
-  product: Product;
-  buyerId: string;
-  buyer: User;
+  product?: Product;
   sellerId: string;
-  seller: User;
-  amount: number;
-  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "RETURNED";
+  seller?: User;
   createdAt: string;
   updatedAt: string;
+  amount?: number;
+  status?: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "RETURNED";
 }
 
 export interface BuyTransaction extends BaseTransaction {
   type: "BUY";
-  shippingAddress?: string;
-  trackingNumber?: string;
-  deliveredAt?: string;
+  buyerId: string;
+  buyer?: User;
+  purchase_date: string;
+  rent_date?: never;
+  rent_option?: never;
+  rent_period_start_date?: never;
+  rent_period_end_date?: never;
+  total_price?: never;
+  renterId?: never;
+  renter?: never;
 }
 
 export interface RentTransaction extends BaseTransaction {
   type: "RENT";
-  rentType: "HOURLY" | "DAILY" | "WEEKLY" | "MONTHLY";
-  startDate: string;
-  endDate: string;
-  duration: number;
-  returnedAt?: string;
-  securityDeposit?: number;
-  lateReturnFee?: number;
+  renterId: string;
+  renter?: User;
+  rent_option: "hour" | "day" | "week" | "month";
+  rent_period_start_date: string;
+  rent_period_end_date: string;
+  total_price: string;
+  rent_date: string;
+  purchase_date?: never;
+  buyerId?: never;
+  buyer?: never;
 }
 
 export type Transaction = BuyTransaction | RentTransaction;

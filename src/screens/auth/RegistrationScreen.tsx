@@ -34,7 +34,7 @@ export const RegistrationScreen: React.FC = () => {
   const { register, isLoading } = useAuthStore();
   const [showBiometricPrompt, setShowBiometricPrompt] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState("");
-
+  const [newUserPassword, setNewUserPassword] = useState("");
   const {
     control,
     handleSubmit,
@@ -70,6 +70,7 @@ export const RegistrationScreen: React.FC = () => {
       await register(registrationData);
 
       setNewUserEmail(data.email);
+      setNewUserPassword(data.password);
 
       Toast.show({
         type: "success",
@@ -77,7 +78,6 @@ export const RegistrationScreen: React.FC = () => {
         text2: "Your account has been created successfully.",
       });
 
-      
       const hasHardware = await LocalAuthentication.hasHardwareAsync();
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
 
@@ -101,11 +101,10 @@ export const RegistrationScreen: React.FC = () => {
 
   const handleEnableBiometric = async () => {
     try {
-      
       await AsyncStorage.multiSet([
         ["teebay_biometric_enabled", "true"],
         ["teebay_biometric_email", newUserEmail],
-        ["teebay_biometric_password", "stored"], 
+        ["teebay_biometric_password", newUserPassword],
       ]);
       setShowBiometricPrompt(false);
       Toast.show({
@@ -114,7 +113,7 @@ export const RegistrationScreen: React.FC = () => {
         text2: "Your biometric authentication is now set up for quick sign in.",
       });
       router.replace("/");
-    } catch (error) {
+    } catch {
       Toast.show({
         type: "error",
         text1: "Biometric Setup Failed",
@@ -472,5 +471,4 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeight.semibold,
   },
 });
-
 export default RegistrationScreen;

@@ -154,29 +154,7 @@ export const WelcomeScreen: React.FC = () => {
           entering={FadeInUp.delay(100).duration(600)}
           style={[styles.logoContainer, animatedLogoStyle]}
         >
-          <View
-            style={[styles.logo, { backgroundColor: Colors[theme].primary }]}
-          >
-            <Text style={styles.logoText}>TB</Text>
-          </View>
-        </Animated.View>
-
-        <Animated.View
-          entering={FadeInDown.delay(200).duration(500)}
-          style={styles.welcomeContent}
-        >
-          <Text style={[styles.welcomeTitle, { color: Colors[theme].text }]}>
-            Ready to start trading?
-          </Text>
-          <Text
-            style={[
-              styles.welcomeSubtitle,
-              { color: Colors[theme].textSecondary },
-            ]}
-          >
-            Join thousands of users buying, selling, and renting products safely
-            and easily.
-          </Text>
+          <View style={styles.logo}></View>
         </Animated.View>
 
         <Animated.View
@@ -209,63 +187,6 @@ export const WelcomeScreen: React.FC = () => {
             variant="secondary"
             testID="create-account-button"
           />
-        </Animated.View>
-
-        <Animated.View
-          entering={FadeInDown.delay(600).duration(500)}
-          style={styles.featuresContainer}
-        >
-          <Text style={[styles.featuresTitle, { color: Colors[theme].text }]}>
-            Why TeeBay?
-          </Text>
-
-          <View style={styles.featuresList}>
-            {[
-              {
-                icon: "🛡️",
-                title: "Secure Transactions",
-                description: "Safe and protected payments",
-              },
-              {
-                icon: "📱",
-                title: "Easy to Use",
-                description: "Simple interface for everyone",
-              },
-              {
-                icon: "💰",
-                title: "Best Prices",
-                description: "Competitive marketplace rates",
-              },
-              {
-                icon: "🌍",
-                title: "Local & Global",
-                description: "Buy and sell anywhere",
-              },
-            ].map((feature, index) => (
-              <Animated.View
-                key={index}
-                entering={FadeInUp.delay(800 + index * 100).duration(400)}
-                style={styles.featureItem}
-              >
-                <Text style={styles.featureIcon}>{feature.icon}</Text>
-                <View style={styles.featureText}>
-                  <Text
-                    style={[styles.featureTitle, { color: Colors[theme].text }]}
-                  >
-                    {feature.title}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.featureDescription,
-                      { color: Colors[theme].textSecondary },
-                    ]}
-                  >
-                    {feature.description}
-                  </Text>
-                </View>
-              </Animated.View>
-            ))}
-          </View>
         </Animated.View>
 
         <Animated.View

@@ -1,22 +1,9 @@
-
-
 import { API_CONFIG, HTTP_STATUS } from "@/src/config/api";
-import { APP_CONFIG } from "@/src/config/app";
 import type { ApiError, ApiResponse } from "@/src/types";
 import axios, { AxiosInstance, isAxiosError } from "axios";
-import * as SecureStore from "expo-secure-store";
 
-
-
-
-
+// Simple axios instance without authentication complexity
 let axiosInstance: AxiosInstance | null = null;
-let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
-
-
-
-
 
 const getAxiosInstance = (): AxiosInstance => {
   if (!axiosInstance) {
@@ -28,94 +15,8 @@ const getAxiosInstance = (): AxiosInstance => {
         Accept: "application/json",
       },
     });
-    setupInterceptors();
   }
   return axiosInstance;
-};
-
-const setupInterceptors = () => {
-  if (!axiosInstance) return;
-
-  axiosInstance.interceptors.request.use(
-    async (config) => {
-      const token = await getStoredToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-      return config;
-    },
-    (error) => Promise.reject(error)
-  );
-
-  axiosInstance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-      const originalRequest = error.config;
-
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        if (isRefreshing) {
-          return new Promise((resolve) => {
-            refreshSubscribers.push((token: string) => {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-              resolve(axiosInstance!.request(originalRequest));
-            });
-          });
-        }
-
-        originalRequest._retry = true;
-        isRefreshing = true;
-
-        try {
-          const newToken = await refreshAuthToken();
-          refreshSubscribers.forEach((cb) => cb(newToken));
-          refreshSubscribers = [];
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return axiosInstance!.request(originalRequest);
-        } catch (refreshError) {
-          await clearAuthTokens();
-          return Promise.reject(refreshError);
-        } finally {
-          isRefreshing = false;
-        }
-      }
-      return Promise.reject(error);
-    }
-  );
-};
-
-const getStoredToken = async (): Promise<string | null> => {
-  try {
-    return await SecureStore.getItemAsync(APP_CONFIG.STORAGE.TOKEN_KEY);
-  } catch {
-    return null;
-  }
-};
-
-const refreshAuthToken = async (): Promise<string> => {
-  const refreshToken = await SecureStore.getItemAsync(
-    APP_CONFIG.STORAGE.REFRESH_TOKEN_KEY
-  );
-  if (!refreshToken) throw new Error("No refresh token available");
-
-  const response = await axiosInstance!.post(
-    API_CONFIG.ENDPOINTS.AUTH.REFRESH,
-    { refresh: refreshToken }
-  );
-  const { access: newToken } = response.data;
-  await SecureStore.setItemAsync(APP_CONFIG.STORAGE.TOKEN_KEY, newToken);
-  return newToken;
-};
-
-const clearAuthTokens = async (): Promise<void> => {
-  try {
-    await Promise.all([
-      SecureStore.deleteItemAsync(APP_CONFIG.STORAGE.TOKEN_KEY),
-      SecureStore.deleteItemAsync(APP_CONFIG.STORAGE.REFRESH_TOKEN_KEY),
-      SecureStore.deleteItemAsync(APP_CONFIG.STORAGE.USER_KEY),
-    ]);
-  } catch (error) {
-    console.error("Error clearing auth tokens:", error);
-  }
 };
 
 const createApiError = (error: any, defaultMessage: string): ApiError => {
@@ -160,10 +61,7 @@ const createApiError = (error: any, defaultMessage: string): ApiError => {
   };
 };
 
-
-
-
-
+// HTTP Methods
 export const get = async <T>(
   url: string,
   params?: Record<string, unknown>
@@ -264,10 +162,13 @@ export const patch = async <T>(
   }
 };
 
-export const del = async <T>(url: string): Promise<ApiResponse<T>> => {
+export const del = async <T>(
+  url: string,
+  data?: unknown
+): Promise<ApiResponse<T>> => {
   try {
     const instance = getAxiosInstance();
-    const response = await instance.delete(url);
+    const response = await instance.delete(url, { data });
     return {
       success: true,
       data: response.data,
@@ -340,10 +241,7 @@ export const downloadFile = async (url: string): Promise<ApiResponse<Blob>> => {
   }
 };
 
-
-
-
-
+// API Service object
 export const apiService = {
   get,
   post,
@@ -352,7 +250,6 @@ export const apiService = {
   delete: del,
   uploadFile,
   downloadFile,
-  clearAuthTokens,
 };
 
 export default apiService;

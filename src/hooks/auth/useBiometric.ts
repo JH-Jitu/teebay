@@ -3,9 +3,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as LocalAuthentication from "expo-local-authentication";
 import { useCallback, useState } from "react";
 
-
 export const useBiometric = () => {
-  const { biometricEnabled, enableBiometric } = useAuthStore();
+  const { biometricEnabled, enableBiometric, disableBiometric } =
+    useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const checkBiometricAvailability = useCallback(async () => {
@@ -60,5 +60,6 @@ export const useBiometric = () => {
     checkBiometricAvailability,
     authenticateWithBiometric,
     enableBiometricAuth,
+    disableBiometric,
   };
 };
